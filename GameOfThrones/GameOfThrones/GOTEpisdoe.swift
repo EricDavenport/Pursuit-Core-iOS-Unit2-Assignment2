@@ -121,4 +121,5 @@ class GOTEpisode {
         }
         return sectionsArray
     }
+    
 }

@@ -10,7 +10,7 @@ import UIKit
 
 class MainViewController: UIViewController {
     
- 
+    
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -22,16 +22,28 @@ class MainViewController: UIViewController {
     
     
     
-
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    tableView.dataSource = self
-    seasons = GOTEpisode.getSeason()
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.dataSource = self
+        //tableView.delegate = self
+        seasons = GOTEpisode.getSeason()
+        dump(seasons)
     }
-
-
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard let detailsVC = segue.destination as? DetailsViewController,
+            let indexPath = tableView.indexPathForSelectedRow else {
+                return
+        }
+        
+        detailsVC.episode = seasons[indexPath.section][indexPath.row]
+    }
+    
+    
+    
 }
-
 
 extension MainViewController: UITableViewDataSource {
     // numberOrRowInSection
@@ -45,30 +57,32 @@ extension MainViewController: UITableViewDataSource {
         return seasons.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        guard let cell = tableView.dequeueReusableCell(withIdentifier: "countryCell", for: indexPath) as? CountryCell  else {   // type cast as? to type expected CountryCell
-//              // explicitly crashed the app at runtime if
-//              // a CountryCell does not exist, this is a develop error
-//              fatalError("Couldn't dequeue a CountryCell")
-//          }
-//
-//          // get the object (country) to set a current indexPath
-//          let country = continents[indexPath.section][indexPath.row]
-//
-//          // configure the cell - with configureCell func from CountryCell.swift file
-//          // populates the properties within class
-//          cell.configureCell(for: country)
-//
-//          return cell
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "episodeCell1", for: indexPath) as? GoTCellTableViewCell else {
-            fatalError("Unable to deque GoTCellTableViewCell")
+       guard let lowerCell = tableView.dequeueReusableCell(withIdentifier: "lowerCell", for: indexPath) as? LowerTableViewCell else {
+            fatalError("lowerCell failed to deque")
         }
         
-        let singleEpisode = seasons[indexPath.section][indexPath.row]
-        cell.configureCell(for: singleEpisode)
+        guard let upperCell = tableView.dequeueReusableCell(withIdentifier: "upperCell", for: indexPath) as? UpperTableViewCell else {
+            fatalError("upperCell failed to deque")
+        }
         
-        return cell
-    }
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "Season \(seasons[section].first?.season)"
+        
+        let thisEpisode = seasons[indexPath.section][indexPath.row]
+        
+        if thisEpisode.season % 2 == 0{
+            lowerCell.configureLowerCell(for: thisEpisode)
+            return lowerCell
+        } else{
+            upperCell.configureUpperCell(for: thisEpisode)
+            return upperCell
+        }
+}
+func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    return "Season \(seasons[section].first!.season)"
+}
+}
+
+extension MainViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 140
     }
 }
