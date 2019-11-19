@@ -101,28 +101,24 @@ class GOTEpisode {
     
     
     static func getSeason() -> [[GOTEpisode]] {
-      let sortedSeasons = allEpisodes.sorted { $0.season < $1.season }
-      
-      // creates unique continent titles
-      let seasonSet: Set<Int> = Set(allEpisodes.map {$0.season})
-      
-      var sectionsArray = Array(repeating: [GOTEpisode](), count: seasonSet.count)
-      // created 5 empty arrays of type [Country]
-      // [[],[],[],[],[]]
-      
-      // iterate through our countries array and add to the relevant section
-      var currentIndex = 0
-      var currentSeason = sortedSeasons.first?.season
-      for episode in sortedSeasons {
-        if episode.season == currentSeason {
-          // add to current section
-          sectionsArray[currentIndex].append(episode)
-        } else { // visiting a new continent
-          currentIndex += 1
-          currentSeason = episode.season // updating the current continent's value
-          sectionsArray[currentIndex].append(episode)
+        let sortedSeasons = allEpisodes.sorted { $0.season < $1.season }
+        
+        let seasonSet: Set<Int> = Set(allEpisodes.map {$0.season})
+        
+        var sectionsArray = Array(repeating: [GOTEpisode](), count: seasonSet.count)
+        
+        var currentIndex = 0
+        var currentSeason = sortedSeasons.first?.season
+        
+        for episode in sortedSeasons {
+            if episode.season == currentSeason {
+                sectionsArray[currentIndex].append(episode)
+            } else {
+                currentIndex += 1
+                currentSeason = episode.season
+                sectionsArray[currentIndex].append(episode)
+            }
         }
-      }
-      return sectionsArray
+        return sectionsArray
     }
 }
